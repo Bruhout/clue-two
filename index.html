@@ -257,7 +257,7 @@
 
         function updateAttemptsDisplay() {
             const attemptsDiv = document.getElementById('attemptsDisplay');
-            const remaining = 2 - wrongAttempts;
+            const remaining = 1 - wrongAttempts;
             attemptsDiv.textContent = `Remaining attempts: ${remaining}`;
             if (remaining <= 1) {
                 attemptsDiv.classList.add('warning');
