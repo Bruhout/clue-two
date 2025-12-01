@@ -62,18 +62,18 @@
         }
 
         .image-wrapper {
+            width: 400px;
+            position: absolute;
+            left: 50%;
+            top: 60%;
+            transform: translate(-50% , -50%);
             aspect-ratio: 1;
             border: 1px solid black;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
         }
 
-        .image-wrapper:hover {
-            transform: scale(1.05);
-            border-color: black;
-        }
 
         .image-wrapper.selected {
             border-color: black;
@@ -181,29 +181,11 @@
 <body>
     <div class="container">
         <div id="mainContent">
-            <h1>I wonder what this is supposed to mean</h1>
-            <p class="subtitle">ATTEMPTS WILL REFRESH AFTER 24 HOURS. DO NOT CLICK AROUND FOR FUN</p>
-            <div class="attempts" id="attemptsDisplay">Remaining attempts: 1</div>
-            
-            <div class="image-grid" id="imageGrid">
-                <div class="image-wrapper" data-image="1">
-		    <img src="ladybug.jpg" alt="Image 1">
-                </div>
-                <div class="image-wrapper" data-image="2">
-		    <img src="mantis.jpg" alt="Image 1">
-                </div>
-                <div class="image-wrapper" data-image="3">
-		    <img src="ant.jpg" alt="Image 1">
-                </div>
-                <div class="image-wrapper" data-image="4">
-		    <img src="cicada.jpg" alt="Image 1">
-                </div>
-                <div class="image-wrapper" data-image="5">
-		    <img src="cockroach.jpg" alt="Image 1">
-                </div>
-                <div class="image-wrapper" data-image="6">
-		    <img src="beetle.jpg" alt="Image 1">
-                </div>
+            <h1 style="position:absolute; top:20%; left:50%; transform:translate(-50%,-50%);">The bugs are gone ! Now what ?</h1>
+
+
+            <div class="image-wrapper">
+                <a href=next.html><img src=hotchoc.jpg></a>
             </div>
         </div>
 
@@ -221,128 +203,5 @@
             <p id="lockTimer"></p>
         </div>
     </div>
-
-    <script>
-        const CORRECT_IMAGE = 5; // Set which image is correct (1-6)
-        const LOCK_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-        let wrongAttempts = 0;
-        let isLocked = false;
-
-        // Check if page is locked on load
-        function checkLockStatus() {
-            const lockTime = localStorage.getItem('lockTime');
-            if (lockTime) {
-                const timeElapsed = Date.now() - parseInt(lockTime);
-                if (timeElapsed < LOCK_DURATION) {
-                    showLockedMessage(LOCK_DURATION - timeElapsed);
-                    isLocked = true;
-                    return true;
-                } else {
-                    // Lock expired, clear it
-                    localStorage.removeItem('lockTime');
-                    localStorage.removeItem('wrongAttempts');
-                }
-            }
-            
-            // Restore wrong attempts if exists
-            const savedAttempts = localStorage.getItem('wrongAttempts');
-            if (savedAttempts) {
-                wrongAttempts = parseInt(savedAttempts);
-                updateAttemptsDisplay();
-            }
-            
-            return false;
-        }
-
-        function updateAttemptsDisplay() {
-            const attemptsDiv = document.getElementById('attemptsDisplay');
-            const remaining = 1 - wrongAttempts;
-            attemptsDiv.textContent = `Remaining attempts: ${remaining}`;
-            if (remaining <= 1) {
-                attemptsDiv.classList.add('warning');
-            }
-        }
-
-        function showLockedMessage(remainingTime) {
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('lockedMessage').style.display = 'block';
-            
-            updateLockTimer(remainingTime);
-            setInterval(() => {
-                const lockTime = localStorage.getItem('lockTime');
-                if (lockTime) {
-                    const timeElapsed = Date.now() - parseInt(lockTime);
-                    const remaining = LOCK_DURATION - timeElapsed;
-                    if (remaining > 0) {
-                        updateLockTimer(remaining);
-                    } else {
-                        location.reload();
-                    }
-                }
-            }, 1000);
-        }
-
-        function updateLockTimer(milliseconds) {
-            const hours = Math.floor(milliseconds / (1000 * 60 * 60));
-            const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
-            
-            document.getElementById('lockTimer').textContent = 
-                `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
-        }
-
-        function lockPage() {
-            isLocked = true;
-            localStorage.setItem('lockTime', Date.now().toString());
-            showLockedMessage(LOCK_DURATION);
-        }
-
-        // Initialize
-        if (!checkLockStatus()) {
-            const imageWrappers = document.querySelectorAll('.image-wrapper');
-            
-            imageWrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function() {
-                    if (isLocked) return;
-                    
-                    const imageNum = parseInt(this.dataset.image);
-                    
-                    if (imageNum === CORRECT_IMAGE) {
-                        // Correct answer
-                        this.classList.add('selected');
-                        imageWrappers.forEach(w => w.style.pointerEvents = 'none');
-                        
-                        setTimeout(() => {
-                            document.getElementById('mainContent').style.display = 'none';
-                            document.getElementById('successMessage').style.display = 'block';
-                        }, 500);
-                        
-                        // Clear any stored attempts
-                        localStorage.removeItem('wrongAttempts');
-                    } else {
-                        // Wrong answer
-                        wrongAttempts++;
-                        localStorage.setItem('wrongAttempts', wrongAttempts.toString());
-                        
-                        this.classList.add('wrong');
-                        setTimeout(() => this.classList.remove('wrong'), 500);
-                        
-                        if (wrongAttempts >= 2) {
-                            lockPage();
-                        } else {
-                            updateAttemptsDisplay();
-                        }
-                    }
-                });
-            });
-
-            document.getElementById('sendEmailBtn').addEventListener('click', function() {
-                // Show final message immediately
-                document.getElementById('successMessage').style.display = 'none';
-                document.getElementById('finalMessage').style.display = 'block';
-            });
-        }
-    </script>
 </body>
 </html>
