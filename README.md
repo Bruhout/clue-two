@@ -1,2 +1,3 @@
-# not-sigma
-Consider, that you may not be sigma...
+# clue-two
+
+Temporary repository for clue two website
